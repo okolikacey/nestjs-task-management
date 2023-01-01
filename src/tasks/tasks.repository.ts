@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { User } from 'src/auth/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -25,8 +25,12 @@ export class TasksRepository extends Repository<Task> {
         { search: `%${search}%` },
       );
 
-    const tasks = await query.getMany();
-    return tasks;
+    try {
+      const tasks = await query.getMany();
+      return tasks;
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   async createTask(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
